@@ -13,11 +13,11 @@ Sub::Become - Syntactic sugar to allow a sub to replace itself
 
 =head1 VERSION
 
-This document describes Sub::Become version 0.01
+This document describes Sub::Become version 0.02
 
 =cut
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 =head1 SYNOPSIS
 
