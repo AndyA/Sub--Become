@@ -3,9 +3,10 @@ package Sub::Become;
 use warnings;
 use strict;
 use Carp;
+use Scalar::Util qw( refaddr );
 use base qw( Exporter );
 
-our @EXPORT_OK = our @EXPORT = qw( become );
+our @EXPORT_OK = our @EXPORT = qw( become evolve );
 
 =head1 NAME
 
@@ -86,6 +87,31 @@ sub become(&) {
     no strict 'refs';
     no warnings 'redefine';
     return *{ ( caller 1 )[3] } = shift;
+}
+
+=head2 C<< evolve >>
+
+=cut
+
+{
+    my %replaced    = ();
+    my %handler_for = ();
+
+    sub evolve(&$) {
+        my ( $code, $self ) = @_;
+        my $me = ( caller 1 )[3];
+        unless ( $replaced{$me}++ ) {
+            no strict 'refs';
+            no warnings 'redefine';
+            my $old_me = \&{$me};
+            *{$me} = sub {
+                my $id = refaddr $_[0];
+                goto $handler_for{$me}{$id} || $old_me;
+            };
+        }
+        my $id = refaddr $self;
+        return $handler_for{$me}{$id} = $code;
+    }
 }
 
 1;
